@@ -28,6 +28,7 @@ Example for use from a UNIX command line:
 python3 main.py -i imput_file.txt -o output.csv -v
 
 Argparse help:
+
         optional arguments:
           -h, --help            show this help message and exit
           -i path, --input-file path
