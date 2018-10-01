@@ -80,7 +80,10 @@ def verify_dicts(message_dictionaries):
                   'phone': '\+[0-9 ]+',
                   'text': '.+',
                   'message_type': "[system|action|message]",
-                  'text_direction': '[l2r|r2l]'}
+                  'text_direction': '[l2r|r2l]',
+                  'message_id': '[0-9]+',
+                  'phone_country_code':'[A-Z]{2}',
+                  'phone_country': '[A-Z].+'}
     for m_dict in message_dictionaries:
         for key in m_dict:
             try:
@@ -91,9 +94,13 @@ def verify_dicts(message_dictionaries):
                 print("On message {}".format(m_dict))
 
 def output_to_csv(dicts, out_path):
-    headers = ['
+    fieldnames = ['message_id', 'date', 'time', 'message_type',
+               'phone', 'phone_country_code','phone_country',
+               'text','text_direction']
     with open(out_path, 'w') as out_file:
-
+        writer = csv.DictWriter(out_file, fieldnames)
+        writer.writeheader()
+        writer.writerows(dicts)
 
 def parse_commandline_args():
     parser = argparse.ArgumentParser(description="""
@@ -101,6 +108,7 @@ def parse_commandline_args():
         format. 
         
         Will output a file containing the following fields for each message:
+         - message_id: A unique, consecutive, 1-indexed numerical id.
          - date: The date on which a message was sent / generated
          - time: As above
          - message_type: One of the following:

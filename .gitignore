@@ -7,3 +7,4 @@ data/messages/*.txt
 test/*.txt
 test/data/
 venv/
+test/*.csv

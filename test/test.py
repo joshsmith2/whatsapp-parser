@@ -42,3 +42,14 @@ class ProcessingTest(unittest.TestCase):
         dicts = main.convert_messages_to_dicts(self.messages)
         main.get_country_codes(dicts)
         self.assertEqual(dicts[6]['phone_country'], 'United Kingdom')
+
+    def test_whole_process(self):
+        if os.path.exists('test_out.csv'):
+            os.remove('test_out.csv')
+        dicts = main.convert_messages_to_dicts(self.messages)
+        main.get_country_codes(dicts)
+        main.verify_dicts(dicts)
+        main.output_to_csv(dicts, 'test_out.csv')
+        self.assertTrue(os.path.exists('test_out.csv'))
+
+
