@@ -62,10 +62,10 @@ def convert_messages_to_dicts(messages):
 
         out_dicts.append(m_dict)
 
-    get_country_codes(out_dicts)
+    add_country_codes(out_dicts)
     return out_dicts
 
-def get_country_codes(dicts):
+def add_country_codes(dicts):
     for d in dicts:
         if d['phone']:
             number = phonenumbers.parse(d['phone'])
@@ -103,11 +103,12 @@ def output_to_csv(dicts, out_path):
         writer.writerows(dicts)
 
 def parse_commandline_args():
-    parser = argparse.ArgumentParser(description="""
+    parser = argparse.ArgumentParser(description=r"""
         A lightweight tool to parse WhatsApp .txt files and output them to .csv
-        format. 
+        format.
         
         Will output a file containing the following fields for each message:
+        
          - message_id: A unique, consecutive, 1-indexed numerical id.
          - date: The date on which a message was sent / generated
          - time: As above
@@ -128,7 +129,7 @@ def parse_commandline_args():
         may have differing formats.
         
         Developed by Josh Smith for Demos in autumn 2018.
-        """)
+        """, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-i', '--input-file',
                         type=str, dest='input_file', metavar='path',
                         help='Path to a .txt file containing a WhatsApp '
@@ -149,7 +150,13 @@ def parse_commandline_args():
 
 def main():
     args = parse_commandline_args()
-
+    messages = read_to_messages(args.input_file)
+    dicts = convert_messages_to_dicts(messages)
+    if args.validate:
+        print('Verifying messages...')
+        verify_dicts(dicts)
+        print('Done.')
+    output_to_csv(dicts, args.output_file)
 
 if __name__ == "__main__":
     main()
