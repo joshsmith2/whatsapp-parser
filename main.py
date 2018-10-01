@@ -5,7 +5,8 @@ import argparse
 import csv
 
 def read_to_messages(in_file):
-    date_match_regex = "\s(?=[0-9]{2}/[0-9]{2}/[0-9]{4}, )"
+    date_match_regex = "\s(?=[0-9]{2}/[0-9]{2}/[0-9]{4}, " \
+                       "[0-9]{1,2}:[0-9]{2} (?:am|pm) - .)"
     # Reads the whole file into memory - suitable for our use case but beware
     # for very large files
     with open(in_file) as f:
@@ -30,7 +31,11 @@ def convert_messages_to_dicts(messages):
         remainder = ' - '.join(time_split[1:])
         # Whatsapp strings seem to start with an embedding explaining text
         # direction. Record then remove this
-        embedding = remainder[0]
+        try:
+            embedding = remainder[0]
+        except IndexError as e:
+            print("No text found in {}".format(message))
+            raise e
         if embedding == '\u202a':
             m_dict['text_direction'] = 'l2r'
             remainder = remainder[1:]
