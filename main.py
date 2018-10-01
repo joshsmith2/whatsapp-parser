@@ -14,7 +14,8 @@ def read_to_messages(in_file):
     return re.split(date_match_regex, contents)
 
 def convert_messages_to_dicts(messages):
-    phone_regex = '(\+[0-9 ]{5,25})\u202c(:)?'
+    # Regex for WhatsApp phone numbers. Note; \xa0 is a non-breaking space
+    phone_regex = '(\+[0-9 \xa0()-]{5,50})(?:\u202c)?(:)?'
     out_dicts = []
     message_id = 1
 
@@ -59,6 +60,8 @@ def convert_messages_to_dicts(messages):
                 m_dict['phone'] = number
                 # Set the text to what's left after the number
                 m_dict['text'] = remainder[len(phone_match.group(0)) + 1:].strip()
+            else:
+                print("Not a number! {}".format(remainder))
         # If there's no number, it's just a message from the system
         else:
             m_dict['message_type'] = 'system'
@@ -72,12 +75,17 @@ def convert_messages_to_dicts(messages):
 
 def add_country_codes(dicts):
     for d in dicts:
-        if d['phone']:
-            number = phonenumbers.parse(d['phone'])
-            code = phonenumbers.region_code_for_number(number)
-            country = pycountry.countries.get(alpha_2=code).name
-            d['phone_country_code'] = code
-            d['phone_country'] = country
+        try:
+            if d['phone']:
+                clean_number = d['phone'].replace('(', '').replace(')', '')
+                number = phonenumbers.parse(clean_number)
+                code = phonenumbers.region_code_for_number(number)
+                country = pycountry.countries.get(alpha_2=code).name
+                d['phone_country_code'] = code
+                d['phone_country'] = country
+        except KeyError as e:
+            print("Couldn't find phone number in {}".format(d))
+            raise e
 
 def verify_dicts(message_dictionaries):
     test_regex = {'date': '[0-9]{2}/[0-9]{2}/[0-9]{4}',

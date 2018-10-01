@@ -8,3 +8,4 @@ test/*.txt
 test/data/
 venv/
 test/*.csv
+data/out/

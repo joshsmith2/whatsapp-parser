@@ -25,7 +25,7 @@ class ProcessingTest(unittest.TestCase):
         self.date_regex = "[0-9]{2}/[0-9]{2}/[0-9]{4}"
 
     def test_right_count(self):
-        self.assertEqual(len(self.messages), 25)
+        self.assertEqual(len(self.messages), 27)
 
     def test_date_regex_present_in_each_record(self):
         for m in self.messages:
