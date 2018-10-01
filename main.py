@@ -1,8 +1,8 @@
 import re
 import phonenumbers
 import pycountry
-from sre_constants import error as sre_error
 import argparse
+import csv
 
 def read_to_messages(in_file):
     date_match_regex = "\s(?=[0-9]{2}/[0-9]{2}/[0-9]{4}, )"
@@ -15,15 +15,17 @@ def read_to_messages(in_file):
 def convert_messages_to_dicts(messages):
     phone_regex = '(\+[0-9 ]{5,25})\u202c(:)?'
     out_dicts = []
-    for message in messages:
-        m_dict = {}
+    message_id = 1
+
+    for count, message in enumerate(messages):
+        # Create a new dictionary with a 1-indexed unique ID
+        m_dict = {'message_id': str(count + 1)}
 
         date_split = message.split(',')
         m_dict['date'] = date_split[0].strip()
 
         time_split = ','.join(date_split[1:]).split(' - ')
         m_dict['time'] = time_split[0].strip()
-
 
         remainder = ' - '.join(time_split[1:])
         # Whatsapp strings seem to start with an embedding explaining text
@@ -60,6 +62,7 @@ def convert_messages_to_dicts(messages):
 
         out_dicts.append(m_dict)
 
+    get_country_codes(out_dicts)
     return out_dicts
 
 def get_country_codes(dicts):
@@ -83,15 +86,35 @@ def verify_dicts(message_dictionaries):
             try:
                 if len(m_dict[key]) > 0:
                     assert(re.match(test_regex[key], m_dict[key].strip()))
-            except AssertionError or sre_error:
+            except AssertionError:
                 print("Dodgy looking " + key + ": " + m_dict[key])
                 print("On message {}".format(m_dict))
+
+def output_to_csv(dicts, out_path):
+    headers = ['
+    with open(out_path, 'w') as out_file:
 
 
 def parse_commandline_args():
     parser = argparse.ArgumentParser(description="""
         A lightweight tool to parse WhatsApp .txt files and output them to .csv
         format. 
+        
+        Will output a file containing the following fields for each message:
+         - date: The date on which a message was sent / generated
+         - time: As above
+         - message_type: One of the following:
+           - 'system':  Group creation etc messages from WhatsApp, without an 
+                        originating number
+           - 'action':  Actions taken by a user in a chat (e.g adding a 
+                        participant
+           - 'message': A message sent from one user to the group
+         - phone: Phone number of users sending messages
+         - phone_country_code: 2 character country code extrapolated from 
+                               country dialling code (e.g 'GB')
+         - phone_country: Longname for country code (e.g 'United Kingdom')
+         - text: Contents of message / system message
+         - text_direction: One of l2r or r2l, as defined by WhatsApp
         
         Note: Only tested on WhatsApp outputs produced in 2018; earlier files
         may have differing formats.
@@ -117,7 +140,7 @@ def parse_commandline_args():
     return parser.parse_args()
 
 def main():
-    pass
+    args = parse_commandline_args()
 
 
 if __name__ == "__main__":
