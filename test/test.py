@@ -16,16 +16,14 @@ class ProcessingTest(unittest.TestCase):
     def setUp(self):
         test_root = os.path.dirname(os.path.realpath(__file__))
         data_dir = os.path.join(test_root, 'data')
-        self.test_csv = os.path.join(data_dir, 'sample_chat.txt')
+        self.test_csv = os.path.join(data_dir, 'WhatsAppTest.txt')
 
-        self.first_message = "28/08/2018, 11:55 am - Messages to this group " \
-                             "are now secured with end-to-end encryption. " \
-                             "Tap for more info."
+        self.first_message = "11/10/2017, 17:35 - Ellie Emberson created group \"Reading Young Labour\""
         self.messages = main.read_to_messages(self.test_csv)
         self.date_regex = "[0-9]{2}/[0-9]{2}/[0-9]{4}"
 
     def test_right_count(self):
-        self.assertEqual(len(self.messages), 27)
+        self.assertEqual(len(self.messages), 50)
 
     def test_date_regex_present_in_each_record(self):
         for m in self.messages:
