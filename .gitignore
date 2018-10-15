@@ -4,8 +4,6 @@
 .idea/
 data/messages/*.csv
 data/messages/*.txt
-test/*.txt
-test/data/
 venv/
 test/*.csv
 data/out/
